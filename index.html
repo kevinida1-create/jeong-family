@@ -296,7 +296,7 @@ setPw(pw);$('gate').style.display='none';g.textContent='';window.LAST=j.list;ren
 }
 function render(list){
 var by={};list.forEach(function(p){by[p.name]=p});
-var cnt=list.filter(function(p){return p.phone}).length;
+var cnt=list.filter(function(p){return p.phone||p.place||p.memo}).length;
 var h='<p class="hint">본인이 직접 넣은 연락처만 보여요. 번호를 누르면 전화가 걸려요. (입력 '+cnt+'명)</p>';
 (KIDS[ROOT]||[]).forEach(function(n2){
 var rows=[];
@@ -306,12 +306,13 @@ if(rows.length)h+='<div class="cf"><h3>'+esc(dn(n2))+' 집안</h3>'+rows.join(''
 $('cl').innerHTML=h;
 }
 function row(n,p){
-var g=(P[n]&&P[n].gen)||3,has=p&&p.phone;
+var g=(P[n]&&P[n].gen)||3,has=p&&(p.phone||p.place||p.memo);
 var ed='<button type="button" class="ed" data-ed="'+esc(n)+'">'+(has?'고치기':'넣기')+'</button>';
 var sp=info(n).spouse?' <span class="sp">배우자 '+esc(info(n).spouse)+'</span>':'';
 if(!has)return '<div class="row empty g'+g+'"><span class="n">'+esc(dn(n))+'</span><span class="d">아직 입력 전'+sp+'</span>'+ed+'</div>';
-var tel=String(p.phone).replace(/[^0-9+]/g,'');
-return '<div class="row g'+g+'"><span class="n">'+esc(dn(n))+'</span><span class="d"><a href="tel:'+esc(tel)+'">'+esc(p.phone)+'</a>'+(p.place?' · '+esc(p.place):'')+sp+(p.memo?'<span class="m">'+esc(p.memo)+'</span>':'')+'</span>'+ed+'</div>';
+var tel=String(p.phone||'').replace(/[^0-9+]/g,'');
+var parts=[];if(p.phone)parts.push('<a href="tel:'+esc(tel)+'">'+esc(p.phone)+'</a>');else parts.push('<span class="sp">휴대폰 없음</span>');if(p.place)parts.push(esc(p.place));
+return '<div class="row g'+g+'"><span class="n">'+esc(dn(n))+'</span><span class="d">'+parts.join(' · ')+sp+(p.memo?'<span class="m">'+esc(p.memo)+'</span>':'')+'</span>'+ed+'</div>';
 }
 </script>
 </body>
