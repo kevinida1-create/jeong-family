@@ -136,8 +136,8 @@ footer{margin-top:24px;color:var(--mute);font-size:12px;border-top:1px solid var
 <div class="sheet">
 <div class="shh"><div><b id="mTitle"></b><div class="sub" id="mSub"></div></div><button class="x" id="mClose">닫기</button></div>
 <h4>이름·가족 정보</h4>
-<label for="mFix">바른 이름 (틀렸을 때만 · 비우면 원래 이름으로 돌아가요)</label>
-<input id="mFix" maxlength="20" placeholder="맞으면 비워 두세요">
+<label for="mFix">이름 (틀렸으면 지우고 바르게 고쳐 쓰세요)</label>
+<input id="mFix" maxlength="20">
 <label for="mYear">태어난 해</label>
 <input id="mYear" inputmode="numeric" maxlength="4" placeholder="예: 1963">
 <div id="mSpBox"><label for="mSp">배우자 (원하시면)</label>
@@ -222,7 +222,7 @@ function openP(n,kidFocus){
 cur=n;var p=P[n]||{gen:3,fam:''};var i=info(n);
 $('mTitle').textContent=dn(n);
 $('mSub').textContent=[p.gen+'대',p.fam&&p.gen>1?dn(p.fam)+' 집안':'',p.parent&&p.gen>2?dn(p.parent)+'의 자녀':'',dn(n)!==n?'원래 표기 '+n:'',p.dead?'작고':''].filter(Boolean).join(' · ');
-$('mFix').value=dn(n)!==n?dn(n):'';LASTREC=null;$('mYear').value=yr(n);$('mSp').value=i.spouse||'';$('mKids').value=i.kids||'';
+$('mFix').value=dn(n);$('mFix').placeholder=n;LASTREC=null;$('mYear').value=yr(n);$('mSp').value=i.spouse||'';$('mKids').value=i.kids||'';
 $('mKidsBox').style.display=p.gen<=1?'none':'block';$('mDel').style.display=(P[n]&&P[n].added)?'block':'none';
 $('mContact').style.display=p.gen>=3?'block':'none';
 $('mPl').value='';$('mPh').value='';$('mMm').value='';
