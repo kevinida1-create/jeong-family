@@ -92,7 +92,13 @@ label.filebtn{display:inline-block;margin-top:8px;border:1px dashed var(--accent
 .pimgs.n1{grid-template-columns:1fr}.pimgs.n1 img{aspect-ratio:auto;max-height:520px;object-fit:contain;background:transparent}
 .pimgs.n2{grid-template-columns:1fr 1fr}
 .pimgs.n3{grid-template-columns:repeat(3,1fr)}
-.pimgs img{cursor:zoom-in}
+.pic{position:relative;display:block;cursor:zoom-in}
+.pic img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px;background:var(--line);display:block}
+.pimgs.n1 .pic img{aspect-ratio:auto;max-height:520px;object-fit:contain;background:transparent}
+.more{position:absolute;inset:0;background:rgba(0,0,0,.5);color:#fff;font-size:24px;font-weight:700;display:flex;align-items:center;justify-content:center;border-radius:8px}
+.lbrow{display:flex;align-items:center;gap:6px;max-width:100%}
+.lbb{border:0;background:rgba(255,255,255,.15);color:#fff;font-size:34px;line-height:1;width:44px;height:64px;border-radius:10px;cursor:pointer;flex:none}
+.lb .lbrow img{max-width:calc(100vw - 120px)}
 .lb{position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:40;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:12px}
 .lb[hidden]{display:none}
 .lb img{max-width:100%;max-height:82vh;object-fit:contain}
@@ -174,7 +180,7 @@ footer{margin-top:24px;color:var(--mute);font-size:12px;border-top:1px solid var
 <footer>가계도에 없는 가족(배우자·자녀·손주)은 부모 이름을 눌러 "자녀 추가"에 적어 주세요. 이 페이지 주소는 가족끼리만 나눠 주세요.</footer>
 </div>
 
-<div class="lb" id="lb" hidden><img id="lbImg" alt="사진"><a id="lbLink" target="_blank" rel="noopener">원본 파일 보기</a><div style="color:#ccc;font-size:13px">화면을 누르면 닫혀요</div></div>
+<div class="lb" id="lb" hidden><div class="lbrow"><button type="button" class="lbb" id="lbPrev">‹</button><img id="lbImg" alt="사진"><button type="button" class="lbb" id="lbNext">›</button></div><div id="lbCnt" style="color:#fff;font-size:14px"></div><a id="lbLink" target="_blank" rel="noopener">원본 파일 보기</a><div style="color:#ccc;font-size:13px">사진 밖을 누르면 닫혀요</div></div>
 <div class="ov" id="ov" hidden>
 <div class="sheet">
 <div class="shh"><div><b id="mTitle"></b><div class="sub" id="mSub"></div></div><button class="x" id="mClose">닫기</button></div>
@@ -199,7 +205,7 @@ footer{margin-top:24px;color:var(--mute);font-size:12px;border-top:1px solid var
 <div id="mPostBox"><h4>소식·사진 올리기</h4>
 <div class="small">근황, 추억, 옛날 사진 등을 가족과 나눠요. 사진은 대표님 구글 드라이브에 저장돼요.</div>
 <textarea id="pText" maxlength="2000" placeholder="예: 이번 추석 모임 사진이에요."></textarea>
-<label class="filebtn">사진 고르기 (한 번에 6장까지)<input id="pFiles" type="file" accept="image/*" multiple hidden></label>
+<label class="filebtn">사진 고르기 (한 번에 30장까지)<input id="pFiles" type="file" accept="image/*" multiple hidden></label>
 <div class="small" id="pInfo"></div>
 <div class="thumbs" id="pPrev"></div>
 <button class="btn" id="pSend">소식 올리기</button>
@@ -264,7 +270,7 @@ $('grid').innerHTML=h;if($('who'))fillWho();
 }
 function refresh(){return fetch(API+'?action=info&t='+Date.now()).then(function(r){return r.json()}).then(function(j){if(j.ok){INFO=j.info||{};draw();if(!$('cl').hidden&&window.LAST)render(window.LAST)}}).catch(function(){})}
 draw();refresh().then(checkNews);
-document.addEventListener('click',function(e){var im=e.target.closest('[data-img]');if(im){$('lbImg').src=thumbU(im.dataset.img,1600);$('lbLink').href=fullU(im.dataset.img);$('lb').hidden=false;return}if(e.target.closest('#lb')){if(!e.target.closest('#lbLink'))$('lb').hidden=true;return}if(e.target.closest('#newsBar')){document.querySelector('nav button[data-s="feed"]').click();return}var dl=e.target.closest('[data-del]');if(dl){delPost(dl.dataset.del);return}var a=e.target.closest('[data-add]');if(a){openP(a.dataset.add,1);return}var t=e.target.closest('[data-p]');if(t){openP(t.dataset.p)}var b=e.target.closest('[data-ed]');if(b)openP(b.dataset.ed)});
+document.addEventListener('click',function(e){var im=e.target.closest('[data-img]');if(im){LB.set=SETS[im.dataset.set]||[im.dataset.img];LB.i=+im.dataset.i||0;lbShow();$('lb').hidden=false;return}if(e.target.closest('#lbPrev')){LB.i=(LB.i-1+LB.set.length)%LB.set.length;lbShow();return}if(e.target.closest('#lbNext')){LB.i=(LB.i+1)%LB.set.length;lbShow();return}if(e.target.closest('#lb')){if(!e.target.closest('#lbLink')&&e.target.id!=='lbImg')$('lb').hidden=true;return}if(e.target.closest('#newsBar')){document.querySelector('nav button[data-s="feed"]').click();return}var dl=e.target.closest('[data-del]');if(dl){delPost(dl.dataset.del);return}var a=e.target.closest('[data-add]');if(a){openP(a.dataset.add,1);return}var t=e.target.closest('[data-p]');if(t){openP(t.dataset.p)}var b=e.target.closest('[data-ed]');if(b)openP(b.dataset.ed)});
 var navs=document.querySelectorAll('nav button');
 navs.forEach(function(b){b.onclick=function(){navs.forEach(function(x){x.classList.toggle('on',x===b)});document.querySelectorAll('section').forEach(function(s){s.classList.toggle('on',s.id===b.dataset.s)});if(b.dataset.s==='list'&&getPw())load(getPw());if(b.dataset.s==='feed'&&getPw())loadFeed(getPw())}});
 function getPw(){try{return localStorage.fpw||''}catch(e){return ''}}
@@ -284,13 +290,15 @@ $('ov').hidden=false;document.body.style.overflow='hidden';
 resetPost();if($('mPw').value){loadOne(n);loadPosts(n)}
 if(kidFocus){$('mMsg').className='msg';$('mMsg').textContent='빠진 자녀를 "자녀 추가" 칸에 적고 저장해 주세요.';setTimeout(function(){$('mKids').scrollIntoView({block:'center'});$('mKids').focus()},150)}
 }
-var PFILES=[];
+var PFILES=[],SETS={},LB={set:[],i:0};
+function lbShow(){var id=LB.set[LB.i];$('lbImg').src=thumbU(id,1600);$('lbLink').href=fullU(id);$('lbCnt').textContent=LB.set.length>1?(LB.i+1)+' / '+LB.set.length:'';$('lbPrev').style.visibility=LB.set.length>1?'visible':'hidden';$('lbNext').style.visibility=LB.set.length>1?'visible':'hidden'}
+document.addEventListener('keydown',function(e){if($('lb').hidden)return;if(e.key==='Escape')$('lb').hidden=true;if(e.key==='ArrowRight'){LB.i=(LB.i+1)%LB.set.length;lbShow()}if(e.key==='ArrowLeft'){LB.i=(LB.i-1+LB.set.length)%LB.set.length;lbShow()}});
 function thumbU(id,w){return 'https://drive.google.com/thumbnail?id='+encodeURIComponent(id)+'&sz=w'+(w||600)}
 function fullU(id){return 'https://drive.google.com/file/d/'+encodeURIComponent(id)+'/view'}
 function toTs(s){var m=String(s).match(/(\d+)-(\d+)-(\d+)\s+(\d+):(\d+)/);return m?new Date(+m[1],m[2]-1,+m[3],+m[4],+m[5]).getTime():0}
 function ago(s){var t=toTs(s);if(!t)return s;var df=(Date.now()-t)/60000;if(df<1)return '방금';if(df<60)return Math.floor(df)+'분 전';if(df<1440)return Math.floor(df/60)+'시간 전';if(df<2880)return '어제';var d=new Date(t);return d.getFullYear()+'.'+(d.getMonth()+1)+'.'+d.getDate()}
 function whoTxt(n){var p=P[n];if(!p)return '';return [p.gen+'대',p.fam&&p.gen>1?dn(p.fam)+' 집안':''].filter(Boolean).join(' · ')}
-function postHtml(p,showName){var ph=p.photos||[],k=ph.length>=3?'n3':'n'+ph.length;return '<div class="post'+(showName?' card':'')+'"><div class="ph">'+(showName?'<span class="pn" data-p="'+esc(p.name)+'">'+esc(P[p.name]?dn(p.name):(p.label||base(p.name)))+'</span><span class="pw">'+esc(whoTxt(p.name))+'</span>':'')+'<span class="pt">'+esc(ago(p.at))+'</span><button type="button" class="pdel" data-del="'+esc(p.id)+'">지우기</button></div>'+(p.text?'<div class="ptx">'+esc(p.text).replace(/\n/g,'<br>')+'</div>':'')+(ph.length?'<div class="pimgs '+k+'">'+ph.map(function(id){return '<img loading="lazy" data-img="'+esc(id)+'" src="'+thumbU(id,ph.length===1?1200:600)+'" alt="사진">'}).join('')+'</div>':'')+'</div>'}
+function postHtml(p,showName){var ph=p.photos||[],k=ph.length>=3?'n3':'n'+ph.length;return '<div class="post'+(showName?' card':'')+'"><div class="ph">'+(showName?'<span class="pn" data-p="'+esc(p.name)+'">'+esc(P[p.name]?dn(p.name):(p.label||base(p.name)))+'</span><span class="pw">'+esc(whoTxt(p.name))+'</span>':'')+'<span class="pt">'+esc(ago(p.at))+'</span><button type="button" class="pdel" data-del="'+esc(p.id)+'">지우기</button></div>'+(p.text?'<div class="ptx">'+esc(p.text).replace(/\n/g,'<br>')+'</div>':'')+(ph.length?(SETS[p.id]=ph,'<div class="pimgs '+k+'">'+ph.slice(0,9).map(function(id,i){var more=(i===8&&ph.length>9)?'<span class="more">+'+(ph.length-9)+'</span>':'';return '<span class="pic" data-img="'+esc(id)+'" data-set="'+esc(p.id)+'" data-i="'+i+'"><img loading="lazy" src="'+thumbU(id,ph.length===1?1200:600)+'" alt="사진">'+more+'</span>'}).join('')+'</div>'):'')+'</div>'}
 function fillWho(){var o=['<option value="">누구로 올릴까요? (내 이름 고르기)</option>'];(function walk(n,d){(KIDS[n]||[]).forEach(function(c){o.push('<option value="'+esc(c)+'">'+(d>2?'　'.repeat(d-2):'')+esc(dn(c))+(P[c].y?' ('+P[c].y+')':'')+'</option>');walk(c,d+1)})})(ROOT,2);var w=$('who'),v=w.value;w.innerHTML=o.join('');w.value=v}
 function checkNews(){var b=$('newsBar'),pw=getPw();if(!pw){b.hidden=false;b.innerHTML='<b>가족 소식</b> 보러 가기 →';return}fetch(API+'?action=posts&pw='+encodeURIComponent(pw)+'&t='+Date.now()).then(function(r){return r.json()}).then(function(j){if(!j.ok)return;var last=0;try{last=+localStorage.lastFeed||0}catch(e){}var nw=j.posts.filter(function(p){return toTs(p.at)>last}).length;b.hidden=false;b.innerHTML=nw?'<b>새 가족 소식 '+nw+'개</b> · 보러 가기 →':(j.posts.length?'<b>가족 소식</b> '+j.posts.length+'개 · 보러 가기 →':'<b>가족 소식</b> · 첫 소식을 올려 주세요 →')}).catch(function(){})}
 function shrink(file){return new Promise(function(res,rej){var u=URL.createObjectURL(file),img=new Image();img.onload=function(){var mx=1600,s=Math.min(1,mx/Math.max(img.width,img.height)),c=document.createElement('canvas');c.width=Math.round(img.width*s);c.height=Math.round(img.height*s);c.getContext('2d').drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(u);res(c.toDataURL('image/jpeg',0.82).split(',')[1])};img.onerror=function(){rej('img')};img.src=u})}
@@ -322,12 +330,18 @@ else{m.className='msg err';m.textContent='빼지 못했어요. 다시 눌러 주
 };
 // 배경을 눌러도 닫히지 않게 (휴대폰 자판이 올라올 때 잘못 닫히는 문제 방지)
 $('mPw').onchange=function(){if(cur){loadOne(cur);loadPosts(cur)}};
-$('pFiles').onchange=function(){var all=[].slice.call(this.files);PFILES=all.slice(0,6);$('pInfo').textContent=PFILES.length?PFILES.length+'장 골랐어요'+(all.length>6?' (6장까지만 올라가요)':''):'';$('pPrev').innerHTML='';PFILES.forEach(function(f){var i=document.createElement('img');i.src=URL.createObjectURL(f);$('pPrev').appendChild(i)})};
-$('pSend').onclick=function(){var n=cur,pw=$('mPw').value.trim(),m=$('pMsg'),text=$('pText').value.trim();
+$('pFiles').onchange=function(){var all=[].slice.call(this.files);PFILES=all.slice(0,30);$('pInfo').textContent=PFILES.length?PFILES.length+'장 골랐어요'+(all.length>30?' (30장까지만 올라가요)':''):'';$('pPrev').innerHTML='';PFILES.forEach(function(f){var i=document.createElement('img');i.src=URL.createObjectURL(f);$('pPrev').appendChild(i)})};
+$('pSend').onclick=function(){var n=cur,pw=$('mPw').value.trim(),m=$('pMsg'),text=$('pText').value.trim(),files=PFILES.slice();
 if(!pw){m.className='msg err';m.textContent='가족 비밀번호를 넣어 주세요.';return}
-if(!text&&!PFILES.length){m.className='msg err';m.textContent='글을 쓰거나 사진을 골라 주세요.';return}
-$('pSend').disabled=true;m.className='msg';m.textContent=PFILES.length?'사진을 준비하는 중...':'올리는 중...';
-Promise.all(PFILES.map(shrink)).catch(function(){throw 'img'}).then(function(arr){m.textContent='올리는 중...'+(arr.length?' (사진 '+arr.length+'장, 조금 걸려요)':'');return fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'post',pw:pw,name:n,label:dn(n),text:text,photos:arr.map(function(d){return {data:d,type:'image/jpeg'}})})})}).then(function(r){return r.json()}).then(function(j){$('pSend').disabled=false;if(j.ok){setPw(pw);m.className='msg ok';m.textContent='올렸어요. "가족 소식"에서도 볼 수 있어요.';if($('feed').classList.contains('on'))loadFeed(pw);$('pText').value='';$('pFiles').value='';PFILES=[];$('pPrev').innerHTML='';$('pInfo').textContent='';loadPosts(n)}else{m.className='msg err';m.textContent=j.err==='pw'?'가족 비밀번호가 맞지 않아요.':'올리지 못했어요. 다시 눌러 주세요.'}}).catch(function(e){$('pSend').disabled=false;m.className='msg err';m.textContent=e==='img'?'사진을 읽지 못했어요. 다른 사진으로 골라 주세요.':'연결이 잘 안 됐어요. 잠시 뒤 다시 눌러 주세요.'})};
+if(!text&&!files.length){m.className='msg err';m.textContent='글을 쓰거나 사진을 골라 주세요.';return}
+$('pSend').disabled=true;m.className='msg';
+var ids=new Array(files.length),done=0,fail=0,next=0;
+function show(){m.textContent='사진 올리는 중 '+done+'/'+files.length+(fail?' (실패 '+fail+'장)':'')+' · 창을 닫지 마세요'}
+function up1(i,tries){return shrink(files[i]).then(function(data){return fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'upload',pw:pw,name:n,label:dn(n),idx:i+1,data:data,type:'image/jpeg'})}).then(function(r){return r.json()})}).then(function(j){if(j.ok){ids[i]=j.id;done++;show();return}if(j.err==='pw')throw 'pw';throw 'up'}).catch(function(e){if(e==='pw')throw e;if(tries<1)return up1(i,tries+1);fail++;show()})}
+function worker(){if(next>=files.length)return Promise.resolve();var i=next++;return up1(i,0).then(worker)}
+if(files.length)show();else m.textContent='올리는 중...';
+var ws=[];for(var k=0;k<Math.min(3,files.length);k++)ws.push(worker());
+Promise.all(ws).then(function(){var got=ids.filter(Boolean);if(files.length&&!got.length)throw 'allfail';m.textContent='글을 저장하는 중...';return fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'post',pw:pw,name:n,label:dn(n),text:text,photoIds:got})}).then(function(r){return r.json()})}).then(function(j){$('pSend').disabled=false;if(j.ok){setPw(pw);m.className='msg ok';m.textContent='올렸어요'+(files.length?' (사진 '+(files.length-fail)+'장'+(fail?', '+fail+'장은 실패':'')+')':'')+'. "가족 소식"에서도 볼 수 있어요.';if($('feed').classList.contains('on'))loadFeed(pw);$('pText').value='';$('pFiles').value='';PFILES=[];$('pPrev').innerHTML='';$('pInfo').textContent='';loadPosts(n)}else{m.className='msg err';m.textContent=j.err==='pw'?'가족 비밀번호가 맞지 않아요.':'올리지 못했어요. 다시 눌러 주세요.'}}).catch(function(e){$('pSend').disabled=false;m.className='msg err';m.textContent=e==='pw'?'가족 비밀번호가 맞지 않아요.':e==='allfail'?'사진을 올리지 못했어요. 인터넷 연결을 확인하고 다시 눌러 주세요.':'연결이 잘 안 됐어요. 잠시 뒤 다시 눌러 주세요.'})};
 $('go3').onclick=function(){loadFeed($('pw3').value.trim())};
 $('whoGo').onclick=function(){var n=$('who').value;if(!n){alert('이름을 먼저 골라 주세요.');return}openP(n);setTimeout(function(){$('pText').scrollIntoView({block:'center'});$('pText').focus()},250)};
 $('pw3').onkeydown=function(e){if(e.key==='Enter')loadFeed($('pw3').value.trim())};
