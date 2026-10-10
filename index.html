@@ -39,6 +39,10 @@ section{display:none}section.on{display:block}
 .c3 .pn{display:inline-block;background:var(--g3);border-radius:8px;padding:2px 7px;font-weight:600;font-size:14px}
 .c4{display:flex;flex-wrap:wrap;gap:4px 5px;align-items:flex-start}
 .p4{background:var(--g4);border-radius:8px;padding:2px 7px;font-size:13px}
+.p4{display:inline-flex;flex-direction:column;align-items:flex-start}
+.p4 .l2{font-size:11px;margin-top:1px}
+.p4 .l2.sp{margin-left:2px}
+.p4 .p5{margin-left:0}
 .p5{display:inline-flex;flex-wrap:wrap;gap:3px;margin-left:4px;font-size:12px}
 .p5 .pn{background:var(--g5);border-radius:6px;padding:0 5px}
 .p5:before{content:"→";color:var(--mute);margin-right:2px}
@@ -193,7 +197,7 @@ h+='<div class="fam"><div class="c2'+(p2.dead?' dead':'')+'">'+pn(n2)+'<small>'+
 if(!k3.length)h+='<span class="none">자녀 기록 없음</span>';
 k3.forEach(function(n3){
 var k4=KIDS[n3]||[];
-h+='<div class="r3"><div class="c3">'+pn(n3)+yy(n3)+(info(n3).spouse?'<div class="sp3">♥ '+esc(info(n3).spouse)+'</div>':'')+'</div><div class="c4">'+k4.map(function(n4){return '<span class="p4">'+pn(n4)+yy(n4)+spn(n4)+sub5(n4)+addB(n4)+'</span>'}).join('')+addB(n3,'+ 자녀')+'</div></div>';
+h+='<div class="r3"><div class="c3">'+pn(n3)+yy(n3)+(info(n3).spouse?'<div class="sp3">♥ '+esc(info(n3).spouse)+'</div>':'')+'</div><div class="c4">'+k4.map(function(n4){var s=info(n4).spouse,k=sub5(n4);return '<span class="p4"><span class="l1">'+pn(n4)+yy(n4)+addB(n4)+'</span>'+(s?'<span class="l2 sp">♥ '+esc(s)+'</span>':'')+(k?'<span class="l2">'+k+'</span>':'')+'</span>'}).join('')+addB(n3,'+ 자녀')+'</div></div>';
 });
 h+='</div></div>';
 });
