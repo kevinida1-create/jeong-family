@@ -63,6 +63,14 @@ footer{margin-top:30px;color:var(--mute);font-size:12px;border-top:1px solid var
 .box2{background:var(--accent-soft);border-radius:12px;padding:4px 12px 12px;margin-top:14px}
 .box2 label{color:var(--fg)}
 .small{font-size:12px;color:var(--mute);margin-top:4px}
+.sib{align-items:flex-start}
+.g3{flex:1;min-width:240px}
+.g3row{display:flex;flex-wrap:wrap;align-items:center;gap:4px 6px;padding:3px 0}
+.g3row .arrow{font-size:13px}
+.gc{font-size:13px;color:var(--fg);opacity:.8}
+.gc small{color:var(--mute);font-size:10px;margin-left:2px}
+.row.sub{padding-left:14px}
+.row.sub .n{font-weight:500;font-size:14px}
 </style>
 </head>
 <body>
@@ -78,7 +86,7 @@ footer{margin-top:30px;color:var(--mute);font-size:12px;border-top:1px solid var
 </nav>
 
 <section id="tree" class="on">
-<div class="legend">1대 → 2대(10남매) → 3대 · 숫자는 태어난 해 · 흐린 이름은 작고 · <span class="fixed">밑줄 점선</span>은 가족이 고친 이름</div>
+<div class="legend">1대 → 2대(10남매) → 3대 → 4대 · 숫자는 태어난 해 · 4대 성은 원본에 적힌 대로(딸 집안은 사위 성) · 흐린 이름은 작고 · <span class="fixed">밑줄 점선</span>은 가족이 고친 이름</div>
 <div class="root"><b id="rootName">정국현</b><span>1882년생 · 부인 채씨 1890년생</span></div>
 <div class="branch" id="branch"></div>
 </section>
@@ -133,14 +141,14 @@ footer{margin-top:30px;color:var(--mute);font-size:12px;border-top:1px solid var
 var API='https://script.google.com/macros/s/AKfycbwLNo9sSucH5S7pDRDfNXBX37Qi-cFt_MHapcjpVdbNrtpDinJQ4ni5Vaoq-nyaPrDw/exec';
 var ROOT='정국현';
 var F=[
-['정상빈',1907,[['정승옥',1928],['정승준',1930]]],
-['정교빈',1909,[['정승희',1935],['정대원',1937],['정순희',1939],['정대일',1942],['정명희',1947],['정영희',1950]]],
-['정관빈',1911,[['정대형',1948],['정은희',1951],['정복희',1954],['정유희',1957],['정대우',1959]]],
-['정태빈',1915,[['정대성',1953],['정광희',1955],['정대길',1957]]],
+['정상빈',1907,[['정승옥',1928],['정승준',1930,[['정영식',1951],['정인희',1958],['정영훈',1961]]]]],
+['정교빈',1909,[['정승희',1935,[['김미경',1957],['김충정',1959],['김미희',1961],['김수정',1963]]],['정대원',1937,[['정유니',1971],['정선아',1973]]],['정순희',1939,[['장미원',1966],['장지훈',1968],['장지명',1970]]],['정대일',1942,[['정진',1973],['정수희',1975]]],['정명희',1947,[['양혜원',1970],['양지원',1972],['양세원',1974],['양인범',1979]]],['정영희',1950,[['김진호',1974],['김재호',1976],['김세호',1980]]]]],
+['정관빈',1911,[['정대형',1948,[['정태은',1977],['정시은',1979]]],['정은희',1951,[['이정수',1981],['이유진',1983]]],['정복희',1954,[['박승철',1985],['박승예',1989],['박승선',1989],['박승미',1989]]],['정유희',1957,[['김주용',1987],['김민용',1988]]],['정대우',1959,[['정진후',1990],['정청은',1991],['정다인',0]]]]],
+['정태빈',1915,[['정대성',1953,[['정승진',1981],['정연주',1983]]],['정광희',1955,[['이은경',1979],['이정택',1981]]],['정대길',1957,[['정휘진',1990]]]]],
 ['정옥빈',1920,[]],
-['정실빈',1922,[['허미자',1943],['허순자',1946],['허삼일',1952],['허성일',1955]]],
-['정선빈',1924,[['노풍만',1943]]],
-['정효빈',1927,[['조승철',1955],['조용철',1958],['조인철',1960],['조규철',1963]]],
+['정실빈',1922,[['허미자',1943,[['김지원',1967],['김지훈',1968]]],['허순자',1946,[['김정선',1968],['김욱',1969],['김명오',1972]]],['허삼일',1952,[['허정윤',1979],['허예윤',1981]]],['허성일',1955,[['허정원',1985],['허유지',1991]]]]],
+['정선빈',1924,[['노풍만',1943,[['노경모',1968],['노신엽',1970],['노근모',1972]]]]],
+['정효빈',1927,[['조승철',1955,[['조나단',1982],['조은빈',1987]]],['조용철',1958,[['조한울',1987],['조한아',1989]]],['조인철',1960,[['조상우',1990]]],['조규철',1963,[['조효원',1996]]]]],
 ['정도빈',1929,[['정훈',1968],['정윤',1970],['정석',1971],['정인',1974]],1],
 ['정준빈',1933,[['정혜정',1967],['정혜원',1969],['정대철',1971]],1]
 ];
@@ -154,21 +162,23 @@ function dnH(n){return NAMES[n]?'<span class="fixed" title="원래 표기: '+esc
 var navs=document.querySelectorAll('nav button');
 navs.forEach(function(b){b.onclick=function(){navs.forEach(function(x){x.classList.toggle('on',x===b)});document.querySelectorAll('section').forEach(function(s){s.classList.toggle('on',s.id===b.dataset.s)});if(b.dataset.s==='list'&&localStorage.fpw)load(localStorage.fpw);scrollTo(0,0)}});
 // tree
+function yy(y){return y?'<small>'+String(y).slice(2)+'</small>':''}
 function drawTree(){
 $('rootName').innerHTML=dnH(ROOT);
 var br=$('branch');br.innerHTML='';
 F.forEach(function(f){
 var d=document.createElement('div');d.className='sib';
-var kids=f[2].length?'<div class="kids"><span class="arrow">→</span>'+f[2].map(function(k){return '<span class="kid">'+dnH(k[0])+'<small>'+String(k[1]).slice(2)+'</small></span>'}).join('')+'</div>':'<span class="none">자녀 기록 없음</span>';
+var kids=f[2].length?'<div class="g3">'+f[2].map(function(k){return '<div class="g3row"><span class="kid">'+dnH(k[0])+yy(k[1])+'</span>'+((k[2]&&k[2].length)?'<span class="arrow">→</span>'+k[2].map(function(g){return '<span class="gc">'+dnH(g[0])+yy(g[1])+'</span>'}).join(''):'')+'</div>'}).join('')+'</div>':'<span class="none">자녀 기록 없음</span>';
 d.innerHTML='<div class="sbox'+(f[3]?'':' dead')+'"><b>'+dnH(f[0])+'</b><small>'+f[1]+'</small></div>'+kids;
 br.appendChild(d);
 });
 }
 // form options
 var nm=$('nm'),fam=$('fam');
+function opt(n,y,fm,pre){return '<option value="'+n+'" data-f="'+fm+'">'+pre+esc(dn(n))+(NAMES[n]?' (원래 '+n+')':'')+(y?' ('+y+')':'')+'</option>'}
 function drawOptions(){
 var keep=nm.value;
-nm.innerHTML='<option value="">이름을 골라 주세요</option>'+F.filter(function(f){return f[2].length}).map(function(f){return '<optgroup label="'+esc(dn(f[0]))+' 집안">'+f[2].map(function(k){return '<option value="'+k[0]+'" data-f="'+f[0]+'">'+esc(dn(k[0]))+(NAMES[k[0]]?' (원래 '+k[0]+')':'')+' ('+k[1]+')</option>'}).join('')+'</optgroup>'}).join('')+
+nm.innerHTML='<option value="">이름을 골라 주세요</option>'+F.filter(function(f){return f[2].length}).map(function(f){return '<optgroup label="'+esc(dn(f[0]))+' 집안">'+f[2].map(function(k){return opt(k[0],k[1],f[0],'')+(k[2]||[]).map(function(g){return opt(g[0],g[1],f[0],'　└ ')}).join('')}).join('')+'</optgroup>'}).join('')+
 '<optgroup label="어르신 (이름만 고치기)"><option value="'+ROOT+'" data-f="" data-e="1">'+esc(dn(ROOT))+' (1882)</option>'+F.map(function(f){return '<option value="'+f[0]+'" data-f="'+f[0]+'" data-e="1">'+esc(dn(f[0]))+(NAMES[f[0]]?' (원래 '+f[0]+')':'')+' ('+f[1]+')</option>'}).join('')+'</optgroup>'+
 '<option value="__other">목록에 없어요 (직접 쓰기)</option>';
 fam.innerHTML=F.map(function(f){return '<option value="'+f[0]+'">'+esc(dn(f[0]))+'</option>'}).join('')+'<option>잘 모르겠어요</option>';
@@ -249,7 +259,7 @@ var by={};list.forEach(function(p){by[p.name]=p});
 var used={},cnt=list.filter(function(p){return p.phone}).length;
 var html='<p class="hint">본인이 직접 넣은 연락처만 보여요. 번호를 누르면 바로 전화할 수 있어요. (입력 '+cnt+'명)</p>';
 F.forEach(function(f){
-var rows=f[2].map(function(k){var p=by[k[0]];if(p)used[k[0]]=1;return row(k[0],p)});
+var rows=[];f[2].forEach(function(k){used[k[0]]=1;rows.push(row(k[0],by[k[0]]));(k[2]||[]).forEach(function(g){used[g[0]]=1;rows.push(row(g[0],by[g[0]],1))})});
 list.forEach(function(p){if(!used[p.name]&&p.fam===f[0]){used[p.name]=1;rows.push(row(p.name,p))}});
 if(!rows.length)return;
 html+='<div class="fam"><h3>'+dnH(f[0])+' 집안<small>'+f[1]+'</small></h3>'+rows.join('')+'</div>';
@@ -258,12 +268,12 @@ var rest=list.filter(function(p){return !used[p.name]});
 if(rest.length)html+='<div class="fam"><h3>기타</h3>'+rest.map(function(p){return row(p.name,p)}).join('')+'</div>';
 $('cl').innerHTML=html;
 }
-function row(n,p){
+function row(n,p,sub){
 var has=p&&p.phone;
 var ed='<button type="button" class="ed" data-ed="'+esc(n)+'">'+(has?'고치기':'넣기')+'</button>';
-if(!has)return '<div class="row empty"><span class="n">'+dnH(n)+'</span><span class="d">아직 입력 전</span>'+ed+'</div>';
+if(!has)return '<div class="row empty'+(sub?' sub':'')+'"><span class="n">'+dnH(n)+'</span><span class="d">아직 입력 전</span>'+ed+'</div>';
 var tel=String(p.phone).replace(/[^0-9+]/g,'');
-return '<div class="row"><span class="n">'+dnH(n)+'</span><span class="d"><a href="tel:'+esc(tel)+'">'+esc(p.phone)+'</a>'+(p.place?' · '+esc(p.place):'')+(p.memo?'<span class="m">'+esc(p.memo)+'</span>':'')+'</span>'+ed+'</div>';
+return '<div class="row'+(sub?' sub':'')+'"><span class="n">'+dnH(n)+'</span><span class="d"><a href="tel:'+esc(tel)+'">'+esc(p.phone)+'</a>'+(p.place?' · '+esc(p.place):'')+(p.memo?'<span class="m">'+esc(p.memo)+'</span>':'')+'</span>'+ed+'</div>';
 }
 </script>
 </body>
