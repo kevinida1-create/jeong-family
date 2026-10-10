@@ -43,6 +43,10 @@ section{display:none}section.on{display:block}
 .p4 .l2{font-size:11px;margin-top:1px}
 .p4 .l2.sp{margin-left:2px}
 .p4 .p5{margin-left:0}
+.p5.col{display:flex;flex-direction:column;gap:1px}
+.k5{display:block;white-space:nowrap}
+.p5.in{display:inline;margin-left:4px;color:var(--mute);white-space:normal}
+.p5.in .pn{background:transparent;padding:0}
 .p5{display:inline-flex;flex-wrap:wrap;gap:3px;margin-left:4px;font-size:12px}
 .p5 .pn{background:var(--g5);border-radius:6px;padding:0 5px}
 .no{color:var(--mute);font-size:11px;margin:0 2px 0 4px}
@@ -187,7 +191,7 @@ for(var pass=0;pass<5;pass++){Object.keys(P).forEach(function(n){parseKids(info(
 }
 function spn(n){var s=info(n).spouse;return s?'<span class="sp">♥ '+esc(s)+'</span>':''}
 function addB(n,t){return '<button type="button" class="add" data-add="'+esc(n)+'">'+(t||'+')+'</button>'}
-function sub5(n){var k=KIDS[n]||[];if(!k.length)return '';return '<span class="p5">'+k.map(function(c,i){return '<span class="no">'+(i+1)+'.</span>'+pn(c)+yy(c)+spn(c)+sub5(c)}).join(' ')+'</span>'}
+function sub5(n,d){d=d||1;var k=KIDS[n]||[];if(!k.length)return '';if(d===1)return '<span class="p5 col">'+k.map(function(c,i){return '<span class="k5"><span class="no">'+(i+1)+'.</span>'+pn(c)+yy(c)+spn(c)+sub5(c,2)+'</span>'}).join('')+'</span>';return '<span class="p5 in">(자녀 '+k.map(function(c){return pn(c)+yy(c)+spn(c)+sub5(c,d+1)}).join(', ')+')</span>'}
 function draw(){
 build();
 $('rootEl').innerHTML=pn(ROOT);$('rootSub').textContent=yr(ROOT)+'년생 · 부인 채씨 1890년생';
