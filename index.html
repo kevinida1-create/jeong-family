@@ -231,7 +231,7 @@ return fetch(API+'?pw='+encodeURIComponent(pw)+'&t='+Date.now()).then(function(r
 if(!j.ok){m.className='msg err';m.textContent='가족 비밀번호가 맞지 않아요.';return false}
 setPw(pw);loaded=n+'|'+pw;window.LAST=j.list;
 var r=(j.list||[]).filter(function(x){return x.name===n})[0];if(cur===n)LASTREC=r||null;
-if(cur===n&&r){if(!$('mPl').value)$('mPl').value=r.place||'';if(!$('mPh').value)$('mPh').value=r.phone||'';if(!$('mMm').value)$('mMm').value=r.memo||'';m.className='msg';m.textContent='전에 넣은 내용을 불러왔어요 ('+r.at+').'}
+if(cur===n&&r){if(!$('mPl').value)$('mPl').value=r.place||'';if(!$('mPh').value)$('mPh').value=r.phone||'';if(!$('mMm').value)$('mMm').value=r.memo||'';if(!/저장/.test(m.textContent)){m.className='msg';m.textContent='전에 넣은 내용을 불러왔어요 ('+r.at+').'}}
 return true;
 }).catch(function(){m.className='msg err';m.textContent='연결이 잘 안 됐어요. 잠시 뒤 다시 해 주세요.';return false});
 }
