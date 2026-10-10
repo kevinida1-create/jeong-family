@@ -71,6 +71,7 @@ h2{font-size:17px;margin:14px 0 8px}
 .ov[hidden]{display:none}
 .sheet{background:var(--bg);width:100%;max-width:520px;max-height:92vh;overflow:auto;border-radius:16px 16px 0 0;padding:16px 16px 24px}
 @media (min-width:700px){.ov{align-items:center}.sheet{border-radius:16px}}
+@media (max-width:699px){.ov{align-items:stretch}.sheet{max-height:none;height:100%;border-radius:0;padding-bottom:40vh}.shh{position:sticky;top:-16px;background:var(--bg);padding-top:4px;z-index:1}}
 .shh{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
 .shh b{font-size:20px}
 .shh .sub{color:var(--mute);font-size:12px}
@@ -137,6 +138,7 @@ footer{margin-top:24px;color:var(--mute);font-size:12px;border-top:1px solid var
 <input id="mPw" type="password" inputmode="numeric" placeholder="카톡방에서 안내받은 번호">
 <div class="msg" id="mMsg"></div>
 <button class="btn" id="mSave">저장하기</button>
+<button class="btn" id="mClose2" style="background:transparent;color:var(--fg);border:1px solid var(--line)">닫기</button>
 </div>
 </div>
 
@@ -214,8 +216,8 @@ if($('mPw').value)loadOne(n);
 if(kidFocus){$('mMsg').className='msg';$('mMsg').textContent='빠진 자녀를 "자녀 추가" 칸에 적고 저장해 주세요.';setTimeout(function(){$('mKids').scrollIntoView({block:'center'});$('mKids').focus()},150)}
 }
 function closeP(){$('ov').hidden=true;document.body.style.overflow=''}
-$('mClose').onclick=closeP;
-$('ov').onclick=function(e){if(e.target===$('ov'))closeP()};
+$('mClose').onclick=closeP;$('mClose2').onclick=closeP;
+// 배경을 눌러도 닫히지 않게 (휴대폰 자판이 올라올 때 잘못 닫히는 문제 방지)
 $('mPw').onchange=function(){if(cur)loadOne(cur)};
 function loadOne(n){
 var pw=$('mPw').value.trim(),m=$('mMsg');
