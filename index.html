@@ -120,7 +120,7 @@ footer{margin-top:24px;color:var(--mute);font-size:12px;border-top:1px solid var
 <div class="sheet">
 <div class="shh"><div><b id="mTitle"></b><div class="sub" id="mSub"></div></div><button class="x" id="mClose">닫기</button></div>
 <h4>이름·가족 정보</h4>
-<label for="mFix">바른 이름 (틀렸을 때만)</label>
+<label for="mFix">바른 이름 (틀렸을 때만 · 비우면 원래 이름으로 돌아가요)</label>
 <input id="mFix" maxlength="20" placeholder="맞으면 비워 두세요">
 <label for="mYear">태어난 해</label>
 <input id="mYear" inputmode="numeric" maxlength="4" placeholder="예: 1963">
@@ -155,14 +155,14 @@ var F=[
 ['정도빈',1929,[['정훈',1968],['정윤',1970],['정석',1971],['정인',1974]],1],
 ['정준빈',1933,[['정혜정',1967],['정혜원',1969],['정대철',1971]],1]
 ];
-var INFO={},P={},KIDS={},loaded='';
+var INFO={},P={},KIDS={},loaded='',LASTREC=null;
 function $(id){return document.getElementById(id)}
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
 function info(n){return INFO[n]||{}}
-function dn(n){return info(n).fix||n}
+function dn(n){var f=info(n).fix;return f&&f!==n?f:n}
 function yr(n){return info(n).year||(P[n]&&P[n].y)||''}
 function yy(n){var y=yr(n);return y?'<span class="y">'+String(y).slice(2)+'</span>':''}
-function pn(n){return '<span class="pn'+(info(n).fix?' fixed':'')+'" data-p="'+esc(n)+'">'+esc(dn(n))+'</span>'}
+function pn(n){return '<span class="pn'+(dn(n)!==n?' fixed':'')+'" data-p="'+esc(n)+'">'+esc(dn(n))+'</span>'}
 function parseKids(s){return String(s||'').split(/[,\n]+/).map(function(t){t=t.trim();if(!t)return null;var m=t.match(/^(.+?)[\s(]*(\d{4})?\)?$/);return m?[m[1].trim(),m[2]?+m[2]:0]:null}).filter(function(x){return x&&x[0]})}
 function build(){
 P={};KIDS={};
@@ -170,7 +170,7 @@ function add(n,o,par){if(P[n])return false;P[n]=o;if(par){(KIDS[par]=KIDS[par]||
 add(ROOT,{gen:1,fam:'',y:1882,dead:1});
 F.forEach(function(f){add(f[0],{gen:2,fam:f[0],y:f[1],dead:!f[3],parent:ROOT},ROOT);
 f[2].forEach(function(k){add(k[0],{gen:3,fam:f[0],y:k[1],parent:f[0]},f[0]);(k[2]||[]).forEach(function(g){add(g[0],{gen:4,fam:f[0],y:g[1],parent:k[0]},k[0])})})});
-for(var pass=0;pass<5;pass++){Object.keys(P).forEach(function(n){parseKids(info(n).kids).forEach(function(c){add(c[0],{gen:P[n].gen+1,fam:P[n].fam||n,y:c[1],parent:n,added:1},n)})})}
+for(var pass=0;pass<5;pass++){Object.keys(P).forEach(function(n){parseKids(info(n).kids).forEach(function(c){if(P[c[0]]){if(P[c[0]].parent===n&&!P[c[0]].y&&c[1])P[c[0]].y=c[1];return}add(c[0],{gen:P[n].gen+1,fam:P[n].fam||n,y:c[1],parent:n,added:1},n)})})}
 }
 function spn(n){var s=info(n).spouse;return s?'<span class="sp">♥ '+esc(s)+'</span>':''}
 function addB(n,t){return '<button type="button" class="add" data-add="'+esc(n)+'">'+(t||'+')+'</button>'}
@@ -203,8 +203,8 @@ var cur=null;
 function openP(n,kidFocus){
 cur=n;var p=P[n]||{gen:3,fam:''};var i=info(n);
 $('mTitle').textContent=dn(n);
-$('mSub').textContent=[p.gen+'대',p.fam&&p.gen>1?dn(p.fam)+' 집안':'',p.parent&&p.gen>2?dn(p.parent)+'의 자녀':'',i.fix?'원래 표기 '+n:'',p.dead?'작고':''].filter(Boolean).join(' · ');
-$('mFix').value=i.fix||'';$('mYear').value=yr(n);$('mSp').value=i.spouse||'';$('mKids').value=i.kids||'';
+$('mSub').textContent=[p.gen+'대',p.fam&&p.gen>1?dn(p.fam)+' 집안':'',p.parent&&p.gen>2?dn(p.parent)+'의 자녀':'',dn(n)!==n?'원래 표기 '+n:'',p.dead?'작고':''].filter(Boolean).join(' · ');
+$('mFix').value=dn(n)!==n?dn(n):'';LASTREC=null;$('mYear').value=yr(n);$('mSp').value=i.spouse||'';$('mKids').value=i.kids||'';
 $('mKidsBox').style.display=p.gen<=1?'none':'block';
 $('mContact').style.display=p.gen>=3?'block':'none';
 $('mPl').value='';$('mPh').value='';$('mMm').value='';
@@ -222,7 +222,7 @@ var pw=$('mPw').value.trim(),m=$('mMsg');
 return fetch(API+'?pw='+encodeURIComponent(pw)+'&t='+Date.now()).then(function(r){return r.json()}).then(function(j){
 if(!j.ok){m.className='msg err';m.textContent='가족 비밀번호가 맞지 않아요.';return false}
 setPw(pw);loaded=n+'|'+pw;window.LAST=j.list;
-var r=(j.list||[]).filter(function(x){return x.name===n})[0];
+var r=(j.list||[]).filter(function(x){return x.name===n})[0];if(cur===n)LASTREC=r||null;
 if(cur===n&&r){if(!$('mPl').value)$('mPl').value=r.place||'';if(!$('mPh').value)$('mPh').value=r.phone||'';if(!$('mMm').value)$('mMm').value=r.memo||'';m.className='msg';m.textContent='전에 넣은 내용을 불러왔어요 ('+r.at+').'}
 return true;
 }).catch(function(){m.className='msg err';m.textContent='연결이 잘 안 됐어요. 잠시 뒤 다시 해 주세요.';return false});
@@ -233,10 +233,11 @@ if(!pw){m.className='msg err';m.textContent='가족 비밀번호를 넣어 주�
 $('mSave').disabled=true;m.className='msg';m.textContent='저장하는 중...';
 (loaded===n+'|'+pw?Promise.resolve(true):loadOne(n)).then(function(ok){
 if(!ok){$('mSave').disabled=false;return}
-var fx=$('mFix').value.trim();if(fx===n)fx='';
-var y=$('mYear').value.trim();if(String(y)===String(p.y||''))y='';
-var body={pw:pw,name:n,fam:p.fam||'',fix:fx,year:y,spouse:$('mSp').value.trim(),kids:$('mKids').value.trim(),place:$('mPl').value.trim(),phone:$('mPh').value.trim(),memo:$('mMm').value.trim()};
-if(!(fx||y||body.spouse||body.kids||body.place||body.phone||body.memo)){$('mSave').disabled=false;m.className='msg err';m.textContent='바꾸거나 넣을 내용을 적어 주세요.';return}
+var fx=$('mFix').value.trim()||n;
+var body={pw:pw,name:n,fam:p.fam||'',fix:fx,year:$('mYear').value.trim(),spouse:$('mSp').value.trim(),kids:$('mKids').value.trim(),place:$('mPl').value.trim(),phone:$('mPh').value.trim(),memo:$('mMm').value.trim()};
+var i0=info(n),r0=LASTREC||{};
+var same=dn(n)===fx&&String(yr(n))===body.year&&(i0.spouse||'')===body.spouse&&(i0.kids||'')===body.kids&&(r0.place||'')===body.place&&(r0.phone||'')===body.phone&&(r0.memo||'')===body.memo;
+if(same){$('mSave').disabled=false;m.className='msg';m.textContent='바뀐 내용이 없어요.';return}
 return fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(body)}).then(function(r){return r.json()}).then(function(j){
 $('mSave').disabled=false;
 if(j.ok){m.className='msg ok';m.textContent='저장됐어요. 가계도에 바로 반영됐어요.';refresh().then(function(){$('mTitle').textContent=dn(n);if(window.LAST)load(pw,1)})}
