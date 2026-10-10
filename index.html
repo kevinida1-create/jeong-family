@@ -181,7 +181,7 @@ function dn(n){var f=info(n).fix;return f&&f!==n?f:n}
 function yr(n){return info(n).year||(P[n]&&P[n].y)||''}
 function yy(n){var y=yr(n);return y?'<span class="y">'+String(y).slice(2)+'</span>':''}
 function pn(n){return '<span class="pn'+(dn(n)!==n?' fixed':'')+'" data-p="'+esc(n)+'">'+esc(dn(n))+'</span>'}
-function parseKids(s,py){py=+py||0;var cy=new Date().getFullYear();return String(s||'').split(/[,\n]+/).map(function(t){t=t.trim();if(!t)return null;var m=t.match(/^(.+?)[\s(]*(\d{4}|\d{2})?\s*\)?$/);if(!m)return null;var y=m[2]?+m[2]:0;if(y&&y<100){if(py){y=1900+y;if(y<py+12)y+=100}else{y=(2000+y<=cy+5)?2000+y:1900+y}}return [m[1].trim(),y]}).filter(function(x){return x&&x[0]})}
+function parseKids(s,py){py=+py||0;var cy=new Date().getFullYear(),out=[];function push(n,y){n=String(n||'').replace(/[()]/g,'').trim();if(!n)return;if(y&&y<100){if(py){y=1900+y;if(y<py+12)y+=100}else{y=(2000+y<=cy+5)?2000+y:1900+y}}out.push([n,y||0])}String(s||'').split(/[,，、;\n]+/).forEach(function(tok){var pend=null;tok.trim().split(/\s+/).filter(Boolean).forEach(function(w){var m=w.match(/^\(?(\d{4}|\d{2})\)?년?생?$/);if(m){if(pend){push(pend,+m[1]);pend=null}return}if(pend){push(pend,0);pend=null}var m2=w.match(/^(.*?[^\d(])\(?(\d{4}|\d{2})\)?$/);if(m2)push(m2[1],+m2[2]);else pend=w});if(pend)push(pend,0)});return out}
 function build(){
 P={};KIDS={};
 function add(n,o,par){if(P[n])return false;P[n]=o;if(par){(KIDS[par]=KIDS[par]||[]).push(n)}return true}
@@ -239,7 +239,7 @@ var pw=$('mPw').value.trim();
 if(!pw){m.className='msg err';m.textContent='가족 비밀번호를 넣어 주세요.';return}
 if(!confirm(dn(n)+' 님을 가계도에서 뺄까요?'+((KIDS[n]||[]).length?' 아래 자녀도 함께 안 보이게 돼요.':'')))return;
 var par=p.parent,pi=info(par),py=pi.year||(P[par]&&P[par].y);
-var rest=String(pi.kids||'').split(/[,\n]+/).map(function(t){return t.trim()}).filter(function(t){if(!t)return false;var c=parseKids(t,py)[0];return !c||c[0]!==n});
+var rest=parseKids(pi.kids,py).filter(function(c){return c[0]!==n}).map(function(c){return c[0]+(c[1]?' '+c[1]:'')});
 $('mDel').disabled=true;m.className='msg';m.textContent='빼는 중...';
 fetch(API+'?pw='+encodeURIComponent(pw)+'&t='+Date.now()).then(function(r){return r.json()}).then(function(j){
 if(!j.ok){$('mDel').disabled=false;m.className='msg err';m.textContent='가족 비밀번호가 맞지 않아요.';return}
